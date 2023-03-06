@@ -3944,9 +3944,9 @@ if game.PlaceId == 6708206173 then -- Rate my avatar
     Utils.Notify(LocalPlayer, "Custom commands", "Rate My Avatar commands have loaded successfully")
    
    
-   AddCommand("test", {"tt"}, "Does a command idk dude", {}, function()
-        return "testy"
-   end)
+ --  AddCommand("test", {"tt"}, "Does a command idk dude", {}, function()
+ --       return "testy"
+ --  end)
 
    AddCommand("givesigns", {"signs"}, "Attempts to give all gamepass signs (Rate My Avatar)", {}, function()
        if PlayerOwnsGamepass(17291420) then
@@ -3971,7 +3971,7 @@ if game.PlaceId == 6708206173 then -- Rate my avatar
    
     AddCommand("textsignbypass", {"bypasstext","bpt"}, "Sets a random bypass phrase to your Text Sign (Rate My Avatar)", {}, function()
         if not LocalPlayer.Backpack:FindFirstChild("Text Sign") and not LocalPlayer.Character:FindFirstChild("Text Sign") then Utils.Notify(LocalPlayer, "Error", "Cannot bypass TextSign text as you do not own the gamepass or you do not have it in your backpack '17290248'!") return end
-        local textphrases = {"Be-head nee gers","Hate nee gers","kill nee gers.","round-house kick a nee ger","nee gers deserve @death","@adolf @hitlor was a good person!","@adolf @hitlor helped the world!"}
+        local textphrases = {"Be-head nee gers","Hate nee gers","kill nee gers.","round-house kick a nee ger","nee gers deserve @death","@adolf @hitlor was a good person!","@adolf @hitlor helped the world!","@whitepower rules! @WHITEPOWER!","bomb a school full of nee ger children","crashing down buildings since 9/11","this number, 9/11 should be a holiday","StackingUp nee ger bodies like @trumpTowr"}
 
         local phrase = "this is text"
         
