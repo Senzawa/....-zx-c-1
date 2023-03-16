@@ -3996,6 +3996,78 @@ if game.PlaceId == 6708206173 then -- Rate my avatar
    
 end
 
+
+AddCommand("void", {"tvoid"}, "kills someone", {"1"}, function(Caller, Args)
+    
+    game:GetService("ReplicatedStorage"):WaitForChild("RequestGamepassTool"):FireServer(17291420)
+    repeat wait(0.2) until game.Players.LocalPlayer.Backpack:FindFirstChild("Text Sign")
+
+    local Target = GetPlayer(Args[1]);
+    local OldPos = GetRoot().CFrame
+    local Humanoid = ReplaceHumanoid();
+    local TempRespawnTimes = {}
+    for i, v in next, Target do
+        TempRespawnTimes[v.Name] = RespawnTimes[LocalPlayer.Name] <= RespawnTimes[v.Name]
+    end
+    local Character = GetCharacter();
+    for i, v in next, Target do
+        if (#Target == 1 and TempRespawnTimes[v.Name] and isR6(v)) then
+            --Destroy(Character);
+            --Character = CWait(LocalPlayer.CharacterAdded);
+            --WaitForChild(Character, "Humanoid");
+            wait()
+            Humanoid = ReplaceHumanoid();
+        end
+    end
+    if (Character.Animate) then
+        Character.Animate.Disabled = true
+    end
+    UnequipTools(Humanoid);
+
+    local TChar;
+    CThread(function()
+        for i = 1, #Target do
+            local v = Target[i]
+            TChar = GetCharacter(v);
+            if (TChar) then
+                if (isSat(v)) then
+                    if (#Target == 1) then
+                        Utils.Notify(Caller or LocalPlayer, nil, v.Name .. " is sitting down, could not kill");
+                    end
+                    continue
+                end
+                local TargetRoot = GetRoot(v);
+                if (not TargetRoot) then
+                    continue
+                end
+                --if (RespawnTimes[LocalPlayer.Name] <= RespawnTimes[v.Name] and isR6(v)) then
+                --    continue
+                --end
+
+                local Tool = GetCorrectToolWithHandle();
+                if (not Tool) then
+                    continue
+                end
+                Tool.Parent = Character
+                Tool.Handle.Size = Vector3New(4, 4, 4);
+                CFrameTool(Tool, TargetRoot.CFrame);
+                firetouchinterest(TargetRoot, Tool.Handle, 0);
+                firetouchinterest(TargetRoot, Tool.Handle, 1);
+            else
+                Utils.Notify(Caller or LocalPlayer, "Fail", v.Name .. " is dead or does not have a root part, could not kill.");
+            end
+        end
+    end)()
+    ChangeState(Humanoid, 15);
+    if (_L.KillCam and #Target == 1 and TChar) then
+        --Camera.CameraSubject = TChar
+    end
+    wait(.3);
+    --Destroy(Character);
+    game:GetService("ReplicatedStorage"):WaitForChild("RequestRespawn"):FireServer()
+    WaitForChild(Character, "HumanoidRootPart").CFrame = OldPos
+end)
+
 --AddCommand("dex", {"darkdex"}, "A quick way to execute dark dex from the synapse script hub.", {}, loadstring(game:HttpGet("https://cdn.synapse.to/synapsedistro/hub/DarkDex.lua")));
 
 AddCommand("console", {"errors", "warns", "outputs"}, "shows the outputs D00M admin has made", {}, function()
