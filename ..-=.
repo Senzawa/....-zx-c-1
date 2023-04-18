@@ -1,0 +1,185 @@
+if not game:IsLoaded() then
+	game.Loaded:Wait()
+end
+
+local Player = game:GetService("Players").LocalPlayer
+
+repeat wait() until game:GetService("Workspace"):FindFirstChild(Player.Name)
+
+if _G.milsPetLoaded then return end
+
+_G.milsPetLoaded = true
+
+local Chatmsgs = {"hi","Friendly reminder: I love you","Friendly reminder: you're cute","Legalize nuclear bombs!","I am going to say the N-Word!","I put the new forgis on the jeep!","IM GOING TO FUCKING BOMB NEW YORK","You are cute:)","You are adorable:)","AAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHH!","c0le_theg4ch4n3rd moment","Women☕ "}
+
+function new(obj,prop)
+	assert(typeof(prop) == "table","Properties must be a table.")
+	assert(typeof(obj) == "string","Class should be a string.")
+	local part = Instance.new(obj)
+	for i,v in next,prop do
+		pcall(function()
+			if i ~= "Parent"then
+				part[i] = v
+			end
+		end)
+	end
+	if prop.Parent then
+		part.Parent = prop.Parent
+	end
+	return part
+end
+
+function sandbox(var,func)
+	assert(typeof(var) == "Instance","Script must be an Instance.")
+	assert(typeof(func) == "function","Code should be a function.")
+	local env = getfenv(func)
+	local newenv = setmetatable({},{
+		__index = function(self,k)
+			if k=="script" then
+				return var
+			else
+				return env[k]
+			end
+		end,
+	})
+	setfenv(func,newenv)
+	return func
+end
+
+local cors = {}
+local mas = new("Folder",{
+	Parent = game.Lighting
+})
+local inst = {}
+inst.mas = mas
+inst["Part0"] = new("Part",{
+	Parent = inst["mas"];
+	CFrame = CFrame.new(9.88000011, 4.14669323, -3.4000001, 1, 0, 0, 0, 1, 0, 0, 0, 1);
+	Position = Vector3.new(9.880000114440918, 4.146693229675293, -3.4000000953674316);
+	Size = Vector3.new(1, 1, 1);
+	BottomSurface = Enum.SurfaceType.Smooth;
+	CanCollide = false;
+	TopSurface = Enum.SurfaceType.Smooth;
+})
+inst["BodyPosition1"] = new("BodyPosition",{
+	Parent = inst["Part0"];
+	Position = Vector3.new(0, 0, 0);
+	position = Vector3.new(0, 0, 0);
+})
+inst["BodyGyro2"] = new("BodyGyro",{
+	Parent = inst["Part0"];
+	MaxTorque = Vector3.new(400000, 400000, 400000);
+	maxTorque = Vector3.new(400000, 400000, 400000);
+})
+inst["SpecialMesh3"] = new("SpecialMesh",{
+	Parent = inst["Part0"];
+	MeshId = "rbxassetid://12967976880";
+	Scale = Vector3.new(6, 6, 6);
+	TextureId = "rbxassetid://12967976934";
+	MeshType = Enum.MeshType.FileMesh;
+})
+inst["BillboardGui4"] = new("BillboardGui",{
+	Name = "g";
+	Parent = inst["Part0"];
+	Size = UDim2.new(5, 0, 0.800000012, 0);
+	Adornee = Part0;
+	StudsOffset = Vector3.new(0, 1.5, 0);
+})
+inst["TextLabel5"] = new("TextLabel",{
+	Name = "t";
+	Parent = inst["BillboardGui4"];
+	Size = UDim2.new(1, 0, 1, 0);
+	BackgroundColor = BrickColor.new("Institutional white");
+	BackgroundColor3 = Color3.new(1, 1, 1);
+	BackgroundTransparency = 1;
+	Font = Enum.Font.Cartoon;
+	FontSize = Enum.FontSize.Size18;
+	Text = "chico";
+	TextColor = BrickColor.new("Institutional white");
+	TextColor3 = Color3.new(1, 1, 1);
+	TextScaled = true;
+	TextSize = 18;
+	TextStrokeTransparency = 0.5;
+	TextWrap = true;
+	TextWrapped = true;
+})
+--v.Parent = workspace
+
+mas.Parent = workspace
+local petFolder = mas
+local Shiba = petFolder.Part
+Shiba.Name = "Shiba"
+petFolder.Name = "Pet made by Mil#1522"
+
+local breakLoop = false
+
+local function startLoop1()
+	spawn(function()
+		while true do
+			wait()
+		--[[ if not u2 then
+		    break
+		end ]]--
+			Shiba.BodyPosition.position = (Player.Character.HumanoidRootPart.CFrame * CFrame.new(2, 2 + math.sin(tick() * 0.5), 2)).p
+			Shiba.BodyGyro.cframe = Player.Character.HumanoidRootPart.CFrame
+			if breakLoop then
+				break
+			end
+		end
+	end)
+end
+
+local function startLoop2()
+	spawn(function()
+		while true do
+		    game:GetService("Chat"):Chat(Shiba,Chatmsgs[math.random(1,#Chatmsgs)],Enum.ChatColor.White)
+		    wait(math.random(15,100))
+		end
+	end)
+end
+
+startLoop1()
+startLoop2()
+
+Player.CharacterAdded:Connect(function()
+	breakLoop = true
+	wait(0.5)
+	breakLoop = false
+	startLoop1()
+end)
+
+if not _G.DontShowNameTag then
+	spawn(function()
+		local RS = game:GetService("RunService")
+
+		local grad = game:GetObjects("rbxassetid://12969046686")[1]
+		grad.Parent = Shiba:FindFirstChildOfClass("BillboardGui"):FindFirstChildOfClass("TextLabel")
+
+		local counter = 0
+		local w = math.pi / 25
+		local CS = {}
+		local num = 15
+		local frames = 0
+
+		while wait() do
+			if math.fmod(frames, 2) == 0 then
+				for i = 0, num do
+					local c = Color3.fromRGB(127 * math.sin(w*i + counter) + 128, 127 * math.sin(w*i + 2 * math.pi/3 + counter) + 128, 127*math.sin(w*i + 4*math.pi/3 + counter) + 128)
+					table.insert(CS, i+1, ColorSequenceKeypoint.new(i/num, c))
+				end
+				grad.Color = ColorSequence.new(CS)
+				CS = {}
+				counter = counter + math.pi/40
+				if (counter >= math.pi * 2) then
+					counter = 0
+				end
+			end
+			if frames >= 1000 then
+				frames = 0
+			end
+			frames = frames + 1
+		end
+	end)
+else
+	Shiba:FindFirstChildOfClass("BillboardGui"):Destroy()
+end
