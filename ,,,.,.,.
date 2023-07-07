@@ -1,0 +1,572 @@
+local F3XImportLib = {}
+
+NotificationLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/lobox920/Notification-Library/Main/Library.lua"))()
+
+wait(.2)
+if _G.F3XLibLoaded == true then
+	NotificationLibrary:SendNotification("Warning", "F3X Library has already been loaded. \n Your code will continue as usual", 7)
+	return
+end
+
+_G.F3XLibLoaded = true
+NotificationLibrary:SendNotification("Success", "F3X Library initalized.", 5)
+NotificationLibrary:SendNotification("Info", "F3X Library made by mactonightt", 7)
+
+--local ServerEndpoint = game:GetService("Players").LocalPlayer.Character:FindFirstChild("Building Tools").SyncAPI.ServerEndpoint
+
+function gettool()
+	local tools = {}
+	local thetool
+	for _, v in pairs(game:GetService("Players").LocalPlayer:GetDescendants()) do
+		if v:IsA("Tool") then
+			table.insert(tools, v)
+		end
+	end
+	for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetChildren()) do
+		if v:IsA("Tool") then
+			table.insert(tools, v)
+		end
+	end
+	for _, tool in pairs(tools) do
+		local handle = tool:FindFirstChild("Handle")
+		if handle and tool.Name == "Building Tools" then
+			if tool:FindFirstChild("Core") and tool:FindFirstChild("SyncAPI") then
+				thetool = tool
+			end
+		end
+	end
+	return thetool
+end
+
+--[[function serverEndpoint(table)
+	--    table.Class
+end]]
+
+if not _G.ServerEndpoint then
+	_G.ServerEndpoint = nil 
+end
+local ServerEndpoint
+
+local function getEndPoint()
+	print("APi Endpoint has already been initalized. Script will continue anyway.")
+	print(_G.ServerEndpoint)
+	--NotificationLibrary:SendNotification("Warning", "APi Endpoint has already been initalized. \nResuming.", 5)
+	ServerEndpoint = _G.ServerEndpoint
+	return ServerEndpoint
+end
+
+local function initEndpoint()
+	if _G.ServerEndpoint ~= nil then getEndPoint() return end
+	_G.ServerEndpoint = gettool():WaitForChild("SyncAPI"):WaitForChild("ServerEndpoint")
+	ServerEndpoint = _G.ServerEndpoint
+	NotificationLibrary:SendNotification("Success", "APi Endpoint has been initalized.", 3)
+	return true
+end
+
+--ServerEndpoint:InvokeServer("SyncColor", {{Color = v16, Part = v19, UnionColoring = true}})
+
+function F3XImportLib:DeleteObj(obj)
+	if _G.ServerEndpoint == nil then NotificationLibrary:SendNotification("Warning", "APi Endpoint hasn't been initalized.", 5) return end
+	ServerEndpoint:InvokeServer("Remove", {obj})
+end
+
+local function DeleteObj(obj)
+	return F3XImportLib:DeleteObj(obj)
+end
+
+function F3XImportLib:createGroup(parent,name)
+	if _G.ServerEndpoint == nil then NotificationLibrary:SendNotification("Warning", "APi Endpoint hasn't been initalized.", 5) return end
+	local model = _G.ServerEndpoint:InvokeServer("CreateGroup", "Model", parent, {nil})
+	if name then
+		ServerEndpoint:InvokeServer("SetName", {model}, tostring(name))
+	end
+	NotificationLibrary:SendNotification("Success", "Successfully created \"Model\" class in: "..tostring(parent), 7)
+	return model
+end
+
+local function createGroup(parent,name)
+	return F3XImportLib:createGroup(parent,name)
+end
+
+function F3XImportLib:weld(part1: BasePart, part2: BasePart)	
+	local newWeld = ServerEndpoint:InvokeServer("CreateWelds",{part1},part2)
+	return newWeld
+end
+
+local function weld(part1: BasePart, part2: BasePart)
+	return F3XImportLib:weld(part1, part2)
+end
+
+--	NotificationLibrary:SendNotification("Model Importer", "Beginning to import.", 3)
+
+function F3XImportLib:cloneProperties(obj1,parent)
+	if _G.ServerEndpoint == nil then NotificationLibrary:SendNotification("Warning", "APi Endpoint hasn't been initalized.", 5) return end
+	local v12 = parent
+	--local v19 = ServerEndpoint:InvokeServer("CreatePart", "Normal", CFrame.new(0,0,0), v12)
+	--ServerEndpoint:InvokeServer("SetName", {v19}, obj1.Name)
+	--ServerEndpoint:InvokeServer("SyncMaterial", {{Part = v19, Transparency = 0}})
+	--ServerEndpoint:InvokeServer("SyncResize", {{CFrame = v19.CFrame, Part = v19, Size = Vector3.new(1, 5, 1)}})
+	local newPart
+	if obj1.ClassName == "Part" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "Normal", CFrame.new(), v12)
+	elseif obj1.ClassName == "TrussPart" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "Truss", CFrame.new(), v12)
+	elseif obj1.ClassName == "WedgePart" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "Wedge", CFrame.new(), v12)
+	elseif obj1.ClassName == "CornerWedgePart" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "CornerWedge", CFrame.new(), v12)
+	elseif obj1.ClassName == "Cylinder" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "Cylinder", CFrame.new(), v12)
+	elseif obj1.ClassName == "Ball" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "Ball", CFrame.new(), v12)
+	elseif obj1.ClassName == "Seat" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "Seat", CFrame.new(), v12)
+	elseif obj1.ClassName == "VehicleSeat" then
+		newPart = ServerEndpoint:InvokeServer("CreatePart", "VehicleSeat", CFrame.new(), v12)
+	end
+	ServerEndpoint:InvokeServer("SetName", {newPart}, obj1.Name)
+	ServerEndpoint:InvokeServer("SyncMove", {{CFrame = obj1.CFrame, Part = newPart}})
+	ServerEndpoint:InvokeServer("SyncResize", {{CFrame = obj1.CFrame, Part = newPart, Size = obj1.Size}})
+	ServerEndpoint:InvokeServer("SyncColor", {{Color = obj1.Color, Part = newPart, UnionColoring = false}})
+	ServerEndpoint:InvokeServer("SyncMaterial", {{Part = newPart, Material = obj1.Material}})
+	ServerEndpoint:InvokeServer("SyncMaterial", {{Part = newPart, Transparency = obj1.Transparency}})
+	ServerEndpoint:InvokeServer("SyncCollision", {{Part = newPart, CanCollide = obj1.CanCollide}})
+	ServerEndpoint:InvokeServer("SetLocked", {newPart}, true)
+	for i,obj in pairs(obj1:GetChildren()) do
+		if obj:IsA("SpecialMesh") then
+			ServerEndpoint:InvokeServer("CreateMeshes", {{Part = newPart}})
+			ServerEndpoint:InvokeServer("SyncMesh", {{MeshType = obj.MeshType, Part = newPart}})
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = newPart, Scale = obj.Scale}})
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = newPart, Offset = obj.Offset}})
+			if obj.MeshType == Enum.MeshType.FileMesh then
+				ServerEndpoint:InvokeServer("SyncMesh", {{Part = newPart, MeshId = obj.MeshId}})
+				ServerEndpoint:InvokeServer("SyncMesh", {{Part = newPart, TextureId = obj.TextureId}})
+				ServerEndpoint:InvokeServer("SyncMesh", {{Part = newPart, VertexColor = obj.VertexColor}})
+			end
+		end
+		if obj:IsA("Smoke") then
+			ServerEndpoint:InvokeServer("CreateDecorations", {{Part = newPart, DecorationType = "Smoke"}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Smoke", Opacity = obj.Opacity}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Smoke", Size = obj.Size}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Smoke", RiseVelocity = obj.RiseVelocity}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Smoke", Color = obj.Color}})
+		end
+		if obj:IsA("Fire") then
+			ServerEndpoint:InvokeServer("CreateDecorations", {{Part = newPart, DecorationType = "Fire"}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Fire", Size = obj.Size}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, Heat = obj.Heat, DecorationType = "Fire"}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{SecondaryColor = obj.SecondaryColor, DecorationType = "Fire", Part = newPart}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Fire", Color = obj.Color}})
+		end 
+		if obj:IsA("Sparkles") then
+			ServerEndpoint:InvokeServer("CreateDecorations", {{Part = newPart, DecorationType = "Sparkles"}})
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = newPart, DecorationType = "Sparkles", SparkleColor = obj.SparkleColor}})
+		end
+		if obj:IsA("SpotLight") then
+			ServerEndpoint:InvokeServer("CreateLights", {{Part = newPart, LightType = "SpotLight"}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SpotLight", Range = obj.Range}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SpotLight", Angle = obj.Angle}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SpotLight", Brightness = obj.Brightness}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, Face = obj.Face, LightType = "SpotLight"}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SpotLight", Shadows = obj.Shadows}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SpotLight", Color = obj.Color}})
+		end
+		if obj:IsA("PointLight") then
+			ServerEndpoint:InvokeServer("CreateLights", {{Part = newPart, LightType = "PointLight"}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "PointLight", Range = obj.Range}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "PointLight", Brightness = obj.Brightness}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "PointLight", Shadows = obj.Shadows}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "PointLight", Color = obj.Color}})            
+		end
+		if obj:IsA("SurfaceLight") then
+			ServerEndpoint:InvokeServer("CreateLights", {{Part = newPart, LightType = "SurfaceLight"}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SurfaceLight", Angle = obj.Angle}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SurfaceLight", Range = obj.Range}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SurfaceLight", Brightness = obj.Brightness}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SurfaceLight", Shadows = obj.Shadows}})
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, LightType = "SurfaceLight", Color = obj.Color}})            
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = newPart, Face = obj.Face, LightType = "SurfaceLight"}})
+		end
+		if obj:IsA("Decal") then
+			ServerEndpoint:InvokeServer("CreateTextures", {{Part = newPart, Face = obj.Face, TextureType = "Decal"}})
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Decal", Texture = obj.Texture}})   
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Decal", Transparency = obj.Transparency}})
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Decal", ZIndex = obj.ZIndex}})   
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Decal", Color3 = obj.Color3}})
+		end
+		if obj:IsA("Texture") then
+			ServerEndpoint:InvokeServer("CreateTextures", {{Part = newPart, Face = obj.Face, TextureType = "Texture"}})
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Texture", Texture = obj.Texture}})   
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Texture", Transparency = obj.Transparency}})
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Texture", ZIndex = obj.ZIndex}})   
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Texture", StudsPerTileU = obj.StudsPerTileU}})   
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Texture", StudsPerTileV = obj.StudsPerTileV}})
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = newPart, Face = obj.Face, TextureType = "Texture", Color3 = obj.Color3}})
+		end
+	end
+	--ServerEndpoint:InvokeServer("SyncMove", {{CFrame = v19.CFrame, Part = v19}})
+	obj1:Destroy()
+end
+
+local function cloneProperties(obj1,parent)
+	return F3XImportLib:cloneProperties(obj1,parent)
+end
+
+function F3XImportLib:CreateClass(Class: string, Parent: string, additional)
+	if _G.ServerEndpoint == nil then NotificationLibrary:SendNotification("Warning", "APi Endpoint hasn't been initalized.", 5) return end
+
+	if not Parent then
+		Parent = workspace
+	end
+
+	local newInstance = nil
+	local Class = Class:lower()	
+
+	if Class == "part" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "Normal", CFrame.new(), Parent)
+	elseif Class == "trusspart" or Class == "truss" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "Truss", CFrame.new(), Parent)
+	elseif Class == "wedgePart" or Class == "wedge" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "Wedge", CFrame.new(), Parent)
+	elseif Class == "cornerwedgepart" or Class == "cornerwedge" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "CornerWedge", CFrame.new(), Parent)
+	elseif Class == "cylinder" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "Cylinder", CFrame.new(), Parent)
+	elseif Class == "ball" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "Ball", CFrame.new(), Parent)
+	elseif Class == "seat" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "Seat", CFrame.new(), Parent)
+	elseif Class == "vehicleseat" then
+		newInstance = ServerEndpoint:InvokeServer("CreatePart", "VehicleSeat", CFrame.new(), Parent)
+	elseif Class == "mesh" then
+		newInstance = ServerEndpoint:InvokeServer("CreateMeshes", {{Part = Parent}})
+	elseif Class == "smoke" then
+		newInstance = ServerEndpoint:InvokeServer("CreateDecorations", {{Part = Parent, DecorationType = "Smoke"}})
+	elseif Class == "fire" then
+		newInstance = ServerEndpoint:InvokeServer("CreateDecorations", {{Part = Parent, DecorationType = "Fire"}})
+	elseif Class == "sparkles" then
+		newInstance = ServerEndpoint:InvokeServer("CreateDecorations", {{Part = Parent, DecorationType = "Sparkles"}})
+	elseif Class == "spotlight" then
+		newInstance = ServerEndpoint:InvokeServer("CreateLights", {{Part = Parent, LightType = "SpotLight"}})
+	elseif Class == "pointlight" then
+		newInstance = ServerEndpoint:InvokeServer("CreateLights", {{Part = Parent, LightType = "PointLight"}})
+	elseif Class == "surfaceight" then 
+		newInstance = ServerEndpoint:InvokeServer("CreateLights", {{Part = Parent, LightType = "SurfaceLight"}})
+	elseif Class == "decal" then
+		newInstance = ServerEndpoint:InvokeServer("CreateTextures", {{Part = Parent, Face = additional, TextureType = "Decal"}})
+	elseif Class == "Texture" then
+		newInstance = ServerEndpoint:InvokeServer("CreateTextures", {{Part = Parent, Face = additional, TextureType = "Texture"}})
+		--elseif Class == "" then
+	end
+
+	if newInstance == nil then
+		NotificationLibrary:SendNotification("Warning", "Invalid Part Class: \"CreateClass\"", 5)
+	end
+
+	return newInstance --[1]
+end
+
+local function CreateClass(Class: string, Parent: string, additional)
+	return F3XImportLib:CreateClass(Class, Parent, additional)
+end
+
+local InstanceClasses = {
+
+	["BasePart"] = {
+		"NegateOperation";
+		"MeshPart";
+		"UnionOperation"
+	};
+	["Mesh"] = {
+		"BlockMesh";
+		"SpecialMesh";
+		"CharacterMesh"
+	}
+
+}
+
+function F3XImportLib:EditProperty(Table)
+	if _G.ServerEndpoint == nil then NotificationLibrary:SendNotification("Warning", "APi Endpoint hasn't been initalized.", 5) return end
+
+	if not Table then return end --if not Instance then return end if not Property then return end if not Value then return end
+
+
+	--local ClassName = tostring(Instance.ClassName):lower()
+	local lowerProperty = Table.Property:lower()
+	local lowerClass = Table.Class:lower()
+	local Instance = Table.Instance
+	local Property = Table.Property
+	local Value = Table.Value
+	--local PropertyFound = false
+
+	if lowerClass == "basepart" then		
+		if lowerProperty == "cancollide" then		
+			ServerEndpoint:InvokeServer("SyncCollision", {{Part = Instance, CanCollide = Value}})
+			return
+		elseif lowerProperty == "name" then		
+			ServerEndpoint:InvokeServer("SetName", {Instance}, Value)
+			return
+		elseif lowerProperty == "size" then		
+			ServerEndpoint:InvokeServer("SyncResize", {{CFrame = Instance.CFrame, Part = Instance, Size = Value}})
+		elseif lowerProperty == "cframe" then		
+			ServerEndpoint:InvokeServer("SyncMove", {{CFrame = Value, Part = Instance}})
+			return
+		elseif lowerProperty == "color" then		
+			ServerEndpoint:InvokeServer("SyncColor", {{Color = Value.Color, Part = Instance, UnionColoring = true}})
+			return
+		elseif lowerProperty == "material" then		
+			ServerEndpoint:InvokeServer("SyncMaterial", {{Part = Instance, Material = Value}})
+			return
+		elseif lowerProperty == "transparency" then		
+			ServerEndpoint:InvokeServer("SyncMaterial", {{Part = Instance, Transparency = tonumber(Value)}})
+		elseif lowerProperty == "locked" then		
+			ServerEndpoint:InvokeServer("SetLocked", {Instance}, Value)	
+			return		
+		end
+	elseif lowerClass == "mesh" then
+		if lowerProperty == "meshtype" then
+			ServerEndpoint:InvokeServer("SyncMesh", {{MeshType = Value, Part = Instance}})
+			return
+		elseif lowerProperty == "scale" then
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = Instance, Scale = Value}})
+			return
+		elseif lowerProperty == "offset" then
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = Instance, Offset = Value}})
+			return
+		elseif lowerProperty == "meshid" then
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = Instance, MeshId = Value}})		
+			return
+		elseif lowerProperty == "textureid" then
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = Instance, TextureId = Value}})
+			return
+		elseif lowerProperty == "VertexColor" then
+			ServerEndpoint:InvokeServer("SyncMesh", {{Part = Instance, VertexColor = Value}})
+			return
+		end
+	elseif lowerClass == "smoke" then
+		if lowerProperty == "opacity" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Smoke", Opacity = Value}})
+			return
+		elseif lowerProperty == "size" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Smoke", Size = Value}})
+			return
+		elseif lowerProperty == "risevelocity" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Smoke", RiseVelocity = Value}})
+			return
+		elseif lowerProperty == "color" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Smoke", Color = Value}})
+			return
+		end
+	elseif lowerClass == "fire" then
+		if lowerProperty == "color" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Fire", Color = Value}})
+			return Instance
+		elseif lowerProperty == "size" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Fire", Size = Value}})
+			return Instance
+		elseif lowerProperty == "heat" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, Heat = Value, DecorationType = "Fire"}})
+			return Instance
+		elseif lowerProperty == "secondarycolor" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{SecondaryColor = Instance, DecorationType = "Fire", Part = Instance}})
+			return Instance
+		end
+	elseif lowerClass == "sparkles" then
+		if lowerProperty == "sparklecolor" or lowerProperty == "color" then
+			ServerEndpoint:InvokeServer("SyncDecorate", {{Part = Instance, DecorationType = "Sparkles", SparkleColor = Value}})
+			return Instance
+		end
+	elseif lowerClass == "spotlight" then
+		if lowerProperty == "range" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SpotLight", Range = Value}})
+			return Instance
+		elseif lowerProperty == "angle" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SpotLight", Angle = Value}})
+			return Instance
+		elseif lowerProperty == "brightness" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SpotLight", Brightness = Value}})
+			return Instance
+		elseif lowerProperty == "face" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, Face = Value, LightType = "SpotLight"}})
+			return Instance
+		elseif lowerProperty == "shadows" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SpotLight", Shadows = Value}})
+			return Instance
+		elseif lowerProperty == "color" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SpotLight", Color = Value}})
+			return Instance
+		end
+	elseif lowerClass == "pointlight" then
+
+		if lowerProperty == "range" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "PointLight", Range = Value}})
+			return Instance
+		elseif lowerProperty == "brightness" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "PointLight", Brightness = Value}})
+			return Instance
+		elseif lowerProperty == "shadows" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "PointLight", Shadows = Value}})
+			return Instance
+		elseif lowerProperty == "color" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "PointLight", Color = Value}})            
+			return Instance
+		end
+	elseif lowerClass == "surfacelight" then
+		if lowerProperty == "angle" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SurfaceLight", Angle = Value}})
+			return Instance
+		elseif lowerProperty == "range" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SurfaceLight", Range = Value}})
+			return Instance
+		elseif lowerProperty == "brightness" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SurfaceLight", Brightness = Value}})
+			return Instance
+		elseif lowerProperty == "shadows" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SurfaceLight", Shadows = Value}})
+			return Instance
+		elseif lowerProperty == "color" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, LightType = "SurfaceLight", Color = Value}})            
+			return Instance
+		elseif lowerProperty == "face" then
+			ServerEndpoint:InvokeServer("SyncLighting", {{Part = Instance, Face = Table.Face, LightType = "SurfaceLight"}})
+			return Instance
+		end
+	elseif lowerClass == "decal" then
+		if lowerProperty == "texture" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Decal", Texture = Value}})   
+			return Instance
+		elseif lowerProperty == "transparency" and Table.Class:lower() == "decal" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Decal", Transparency = Value}})
+			return Instance
+		elseif lowerProperty == "zindex"  and Table.Class:lower() == "decal" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Decal", ZIndex = Value}})   
+			return
+		elseif lowerProperty == "color3"  and Table.Class:lower() == "decal" or lowerProperty == "color" or lowerProperty == "color3new" and Table.Class:lower() == "decal" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Decal", Color3 = Value}})
+			return Instance
+		end
+	elseif lowerClass == "texture" then
+		if lowerProperty == "texture" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Texture", Texture = Value}})   
+			return Instance
+		elseif lowerProperty == "transparency" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Texture", Transparency = Value}})
+			return Instance
+		elseif lowerProperty == "zindex" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Texture", ZIndex = Value}})   
+			return Instance
+		elseif lowerProperty == "StudsPerTileU" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Texture", StudsPerTileU = Value}})   
+			return Instance
+		elseif lowerProperty == "StudsPerTileV" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Texture", StudsPerTileV = Value}})
+			return Instance
+		elseif lowerProperty == "color3" or lowerProperty == "color" or lowerProperty == "color3new" then
+			ServerEndpoint:InvokeServer("SyncTexture", {{Part = Instance, Face = Table.Face, TextureType = "Texture", Color3 = Value}})
+			return Instance
+		end
+	end
+
+	NotificationLibrary:SendNotification("Warning", "Invalid Part Property: \"EditProperty\"", 5)
+
+	return false
+end
+
+local function EditProperty(Instance, Property, Value)
+	return F3XImportLib:EditProperty(Instance, Property, Value)
+end
+
+function F3XImportLib:InitApi()
+	initEndpoint()
+	wait(.7)
+end
+
+local function InitApi()
+	F3XImportLib:InitApi()
+end
+
+function F3XImportLib:ClearWorkspace()
+	F3XImportLib:InitApi()
+	for _, obj in pairs(workspace:GetChildren()) do
+		print(obj.Name)
+		--if obj == game:GetService("Players").LocalPlayer.Character then return else continue end
+		coroutine.wrap(DeleteObj)(obj)
+	end
+	wait(5)
+	local baseplate = Instance.new("Part",workspace)
+	baseplate.Name = "Baseplate"
+	baseplate.Size = Vector3.new(2048,20,2048)
+	baseplate.CFrame = CFrame.new(0,-10,0)
+	baseplate.Material = Enum.Material.Grass
+	baseplate.BrickColor = BrickColor.new("Sea green")
+	baseplate.Anchored = true
+
+	cloneProperties(baseplate,workspace)
+	wait(.3)
+	baseplate:Destroy()
+end
+
+function F3XImportLib:Import(assetId)
+
+	InitApi()
+
+	local model = game:GetObjects("rbxassetid://"..assetId)[1]
+
+	model.Parent = workspace.Terrain
+	model:MoveTo(game.Players.LocalPlayer.Character.Torso.Position)
+
+	local group = createGroup(workspace,"test model nigga balls")
+
+	NotificationLibrary:SendNotification("Success", "Model \""..tostring(assetId).."\" has been imported successfully..", 5)
+
+	for i,obj in pairs(model:GetDescendants()) do
+		if obj:IsA("BasePart") and not obj:IsA("UnionOperation") then
+			coroutine.wrap(cloneProperties)(obj,group)
+		end
+	end
+	game:GetService("Debris"):AddItem(model,5000)
+end
+
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function()
+	if _G.ServerEndpoint == nil then
+		if script then
+			script:Destroy()
+		end
+		return
+	end
+	_G.ServerEndpoint = nil
+	_G.F3XLibLoaded = false
+	if script then
+		script:Destroy()
+	end	
+	NotificationLibrary:SendNotification("Warning", "Api Endpoint has been lost. \nScripts will no function unless the APi is reconnected.", 5)
+end)
+
+return F3XImportLib
+
+--[[InitApi()
+local newPart = F3XImportLib:CreateClass("Part",workspace.Terrain)
+local Smoke = F3XImportLib:CreateClass("Smoke",newPart)
+local Decal = F3XImportLib:CreateClass("Decal",newPart, "Left")
+wait(.2)
+F3XImportLib:EditProperty({
+	Instance = newPart;
+	Class = "BasePart";
+	Property = "Name";
+	Value = tostring(game:GetService("HttpService"):GenerateGUID(false))
+})
+F3XImportLib:EditProperty({
+	Instance = newPart;
+	Class = "Decal";
+	Property = "Texture";
+	Face = "Top";
+	Value = "rbxassetid://01"
+})]]
+--F3XImportLib:EditProperty(newPart, "Opacity",0.1)
+--F3XImportLib:EditProperty(newPart, "Texture","rbxassetid://7451945728",{Face = "Right"})
+
+--InitApi()
+--DeleteObj(game.Workspace.TheRizzl3r.Head)
+
+--F3XImportLib:Import(125459331)
+--F3XImportLib:ClearWorkspace()
