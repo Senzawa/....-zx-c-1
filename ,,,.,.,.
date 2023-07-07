@@ -206,6 +206,7 @@ function F3XImportLib:cloneProperties(obj1,parent)
 	end
 	--ServerEndpoint:InvokeServer("SyncMove", {{CFrame = v19.CFrame, Part = v19}})
 	obj1:Destroy()
+return newPart
 end
 
 local function cloneProperties(obj1,parent)
